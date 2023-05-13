@@ -15,10 +15,10 @@ const Drafts = () => {
         const draftsRef = collection(db, "blogDrafts");
         const q = query(draftsRef, orderBy("createdAt", "desc"));
         const draftsCollection = await getDocs(q);
-        const draftsData = await draftsCollection.docs.map((post) => {
+        const draftsData = await draftsCollection.docs.map((draft) => {
           return {
-            ...post.data(),
-            id: post.id,
+            ...draft.data(),
+            id: draft.id,
           };
         });
 
@@ -40,14 +40,14 @@ const Drafts = () => {
         <div>You have {drafts.length} drafts</div>
       ) : (
         <div>
-          {drafts.map((post) => {
+          {drafts.map((draft) => {
             return (
-              <Link key={post.id} to={`post/${post.id}`}>
+              <Link key={draft.id} to={`/draft/${draft.id}`}>
                 <div className='shadow-md text-lg font-mono py-3 px-2 mt-2 space-y-2'>
-                  <h2>{post.title}</h2>
+                  <h2>{draft.title}</h2>
                   <div className='flex justify-between'>
-                    <p>{post.author.name}</p>
-                    <p>{convertDate(post.createdAt)}</p>
+                    <p>{draft.author.name}</p>
+                    <p>{convertDate(draft.createdAt)}</p>
                   </div>
                 </div>
               </Link>

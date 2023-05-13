@@ -8,6 +8,7 @@ import UserPostForm from "../Pages/CreatePost";
 import Post from "../Pages/Post";
 import PrivateRoutes from "../components/PrivateRoutes";
 import Drafts from "../Pages/Drafts";
+import Draft from "../Pages/Draft";
 
 export const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ export const router = createBrowserRouter([
       {
         path: "post/:postId",
         element: <Post />,
+      },
+      {
+        path: "draft/:draftId",
+        element: <Draft />,
       },
     ],
   },

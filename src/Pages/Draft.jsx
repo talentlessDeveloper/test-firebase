@@ -8,8 +8,12 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 import { useNavigate, useParams } from "react-router";
+import { v4 as uuidv4 } from "uuid";
+import { uploadBytes } from "firebase/storage";
+
+
 
 const Draft = () => {
   const [draftForm, setDraftForm] = useState({});
@@ -17,6 +21,9 @@ const Draft = () => {
   const [loading, setLoading] = useState(true);
   const [loadingSaveDraft, setLoadingSaveDraft] = useState(false);
   const navigate = useNavigate();
+
+   const [imageName, setImageName] = useState("");
+   const [imageUrl, setImageUrl] = useState("");
 
   const params = useParams();
 
@@ -41,6 +48,27 @@ const Draft = () => {
     };
     getDraft();
   }, [params.draftId]);
+
+  
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    try {
+      const { currentUser } = auth;
+      const fileName = `${currentUser.uid}-${file.name}-${uuidv4()}`;
+      setImageName(fileName);
+      const imageRef = ref(storage, `coverImages/${fileName}`);
+      await uploadBytes(imageRef, file);
+      const url = await getDownloadURL(imageRef);
+      setImageUrl(url);
+    } catch (err) {
+      alert(err.mesage);
+      console.log(err.mesage);
+    }
+  };
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -95,6 +123,10 @@ const Draft = () => {
     <div className='max-w-md mx-auto'>
       <h2 className='text-xl font-bold mb-4'>Create a Post</h2>
       <form className='space-y-4' onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="image">Image Upload</label>
+        <input type="file"  />
+      </div>
         <div>
           <label htmlFor='title' className='block font-medium mb-2'>
             Title

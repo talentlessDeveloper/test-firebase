@@ -28,6 +28,7 @@ const Post = () => {
 
   return (
     <div className='container mx-auto mt-3 px-3 py-2'>
+      <img src={post.imageUrl} alt='' className='w-full  object-cover' />
       <h1 className='text-2xl text-gray-900'>{post.title}</h1>
       <p className='mt-2'>{post.author.name}</p>
       <p className='mt-7'>{post.body}</p>

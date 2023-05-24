@@ -1,6 +1,6 @@
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 import { convertDate } from "../utils/timeConvert";
 import { Link } from "react-router-dom";
 
@@ -12,8 +12,12 @@ const Drafts = () => {
     const getDrafts = async () => {
       setLoading(true);
       try {
+        const { currentUser } = auth;
         const draftsRef = collection(db, "blogDrafts");
-        const q = query(draftsRef, orderBy("createdAt", "desc"));
+        const q = query(
+          draftsRef,
+          where("author.id", "==", `${currentUser.uid}`)
+        );
         const draftsCollection = await getDocs(q);
         const draftsData = await draftsCollection.docs.map((draft) => {
           return {

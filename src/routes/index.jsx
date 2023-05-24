@@ -9,6 +9,7 @@ import Post from "../Pages/Post";
 import PrivateRoutes from "../components/PrivateRoutes";
 import Drafts from "../Pages/Drafts";
 import Draft from "../Pages/Draft";
+import Dashboard from "../Pages/Dashboard";
 
 export const router = createBrowserRouter([
   {
@@ -29,8 +30,20 @@ export const router = createBrowserRouter([
         element: <SignUp />,
       },
       {
-        path: "/drafts",
-        element: <Drafts />,
+        path: "dashboard",
+        element: <PrivateRoutes />,
+        children: [
+          {
+            path: "/dashboard",
+            element: <Dashboard />,
+            children: [
+              {
+                path: "/dashboard/drafts",
+                element: <Drafts />,
+              },
+            ],
+          },
+        ],
       },
       {
         path: "create",

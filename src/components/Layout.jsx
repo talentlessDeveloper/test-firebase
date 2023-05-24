@@ -1,9 +1,13 @@
 import { Link, Outlet } from "react-router-dom";
 
 import { useAuthStatus } from "../hooks/UseAuth";
+import { useState } from "react";
+
+import Avatar from "../assets/undraw_male_avatar_g98d.svg";
 
 const Layout = () => {
   const { user, loading, handleLogOut } = useAuthStatus();
+  const [showDropdown, setShowDropdown] = useState(false);
 
   if (loading) return <div>Loading...</div>;
 
@@ -19,26 +23,46 @@ const Layout = () => {
             <li>
               <Link to='/create'>Create </Link>
             </li>
-            <li>
-              <Link to='/drafts'>Drafts </Link>
-            </li>
 
             {user ? (
-              <li>
-                <button
-                  onClick={handleLogOut}
-                  className='bg-gray-700 text-gray-50 text-sm uppercase py-2 px-4'
+              <>
+                <li>
+                  <button onClick={() => setShowDropdown((d) => !d)}>
+                    <img
+                      src={Avatar}
+                      alt={user}
+                      className='w-10 h-10 object-cover'
+                    />
+                  </button>
+                </li>
+                <ul
+                  className={`w-11/12 max-w-[180px] p-3 bg-gray-100 space-y-3 fixed right-12 top-[4.5rem] transition-all duration-500 ${
+                    showDropdown ? "block" : "hidden"
+                  }`}
+                  key='dropdown-menu'
                 >
-                  {" "}
-                  Log out
-                </button>
-              </li>
+                  <li className='pt-2 pb-4 border-b border-b-slate-800'>
+                    {user}
+                  </li>
+                  <li>
+                    <Link to='/dashboard'>Dashboard </Link>
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleLogOut}
+                      className='bg-gray-700 text-gray-50 text-sm uppercase py-2 px-4'
+                    >
+                      {" "}
+                      Log out
+                    </button>
+                  </li>
+                </ul>
+              </>
             ) : (
               <li>
                 <Link to='/sign-in'>Sign In</Link>
               </li>
             )}
-            <li>{user ? <p>Hello {user}</p> : null}</li>
           </ul>
         </nav>
       </header>

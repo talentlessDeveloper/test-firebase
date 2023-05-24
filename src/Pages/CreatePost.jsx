@@ -1,7 +1,9 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useState } from "react";
-import { auth, db } from "../firebaseConfig";
+import { auth, db, storage } from "../firebaseConfig";
 import { useNavigate } from "react-router";
+import { v4 as uuidv4 } from "uuid";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 function UserPostForm() {
   const [postForm, setPostForm] = useState({
@@ -10,8 +12,29 @@ function UserPostForm() {
   });
 
   const [draftLoading, setDraftLoading] = useState(false);
+  const [imageName, setImageName] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
 
   const navigate = useNavigate();
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    try {
+      const { currentUser } = auth;
+      const fileName = `${currentUser.uid}-${file.name}-${uuidv4()}`;
+      setImageName(fileName);
+      const imageRef = ref(storage, `coverImages/${fileName}`);
+      await uploadBytes(imageRef, file);
+      const url = await getDownloadURL(imageRef);
+      setImageUrl(url);
+    } catch (err) {
+      alert(err.mesage);
+      console.log(err.mesage);
+    }
+  };
 
   function handleChange(e) {
     setPostForm({
@@ -34,6 +57,8 @@ function UserPostForm() {
           name: currentUser.displayName,
         },
         createdAt: serverTimestamp(),
+        imageUrl,
+        imageName,
       };
 
       await addDoc(collectionRef, post);
@@ -42,6 +67,8 @@ function UserPostForm() {
         title: "",
         body: "",
       });
+      setImageUrl("");
+      setImageName("");
 
       navigate("/");
     } catch (error) {
@@ -67,6 +94,8 @@ function UserPostForm() {
           name: currentUser.displayName,
         },
         createdAt: serverTimestamp(),
+        imageUrl,
+        imageName,
       };
 
       await addDoc(collectionRef, draft);
@@ -87,6 +116,10 @@ function UserPostForm() {
     <div className='max-w-md mx-auto'>
       <h2 className='text-xl font-bold mb-4'>Create a Post</h2>
       <form onSubmit={handleSubmit} className='space-y-4'>
+        <div>
+          <label htmlFor='image'>Add Image</label>
+          <input type='file' id='image' onChange={handleImageUpload} />
+        </div>
         <div>
           <label htmlFor='title' className='block font-medium mb-2'>
             Title

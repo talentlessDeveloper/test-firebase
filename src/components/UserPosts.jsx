@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { Link } from "react-router-dom";
+import { auth, db } from "../firebaseConfig";
 import { convertDate } from "../utils/timeConvert";
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { Link } from "react-router-dom";
 
-const Landing = () => {
+const UserPosts = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     const getPosts = async () => {
       setLoading(true);
+
       try {
+        const { currentUser } = auth;
         const postsRef = collection(db, "blogPosts");
-        const q = query(postsRef, orderBy("createdAt", "desc"));
+        const q = query(
+          postsRef,
+          where("author.id", "==", `${currentUser.uid}`)
+        );
         const postsCollection = await getDocs(q);
         const postsData = await postsCollection.docs.map((post) => {
           return {
@@ -33,37 +37,29 @@ const Landing = () => {
   }, []);
 
   if (loading) return <h2>Loading...</h2>;
-
   return (
-    <div className='max-w-3xl w-11/12 mx-auto flex flex-col justify-center items-center h-full'>
+    <div>
       {!posts.length > 0 ? (
         <div>You have {posts.length} Posts</div>
       ) : (
         <div>
           {posts.map((post) => {
             return (
-              <Link key={post.id} to={`post/${post.id}`}>
+              <div key={post.id}>
                 <div className='shadow-md text-lg font-mono py-3 px-2 mt-2 space-y-2'>
+                  <Link to={`post/${post.id}`}>
+                    <h2>{post.title}</h2>
+                  </Link>
                   <div className='flex justify-between'>
-                    <div className='flex-grow'>
-                      <h2>{post.title}</h2>
-                      <div className='flex justify-between'>
-                        <p>{post.author.name}</p>
-                        <p>{convertDate(post.createdAt)}</p>
-                      </div>
-                    </div>
-                    <div className='w-1/3'>
-                      {post.imageUrl ? (
-                        <img
-                          src={post.imageUrl}
-                          alt=''
-                          className='w-full  object-cover'
-                        />
-                      ) : null}
-                    </div>
+                    <p>{post.author.name}</p>
+                    <p>{convertDate(post.createdAt)}</p>
+                  </div>
+                  <div className='flex gap-x-2'>
+                    <button>🗑</button>
+                    <button>✍</button>
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
@@ -72,4 +68,4 @@ const Landing = () => {
   );
 };
 
-export default Landing;
+export default UserPosts;

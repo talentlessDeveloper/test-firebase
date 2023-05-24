@@ -44,10 +44,14 @@ const Landing = () => {
             return (
               <Link key={post.id} to={`post/${post.id}`}>
                 <div className='shadow-md text-lg font-mono py-3 px-2 mt-2 space-y-2'>
-                  <div className='flex justify-between'>
+                  <div
+                    className={
+                      post.imageUrl ? "flex justify-between items-center" : ""
+                    }
+                  >
                     <div className='flex-grow'>
                       <h2>{post.title}</h2>
-                      <div className='flex justify-between'>
+                      <div className='flex gap-x-3'>
                         <p>{post.author.name}</p>
                         <p>{convertDate(post.createdAt)}</p>
                       </div>

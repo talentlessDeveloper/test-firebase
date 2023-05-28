@@ -6,7 +6,7 @@ import { useState } from "react";
 import Avatar from "../assets/undraw_male_avatar_g98d.svg";
 
 const Layout = () => {
-  const { user, loading, handleLogOut } = useAuthStatus();
+  const { user, loading, handleLogOut, imageUrl } = useAuthStatus();
   const [showDropdown, setShowDropdown] = useState(false);
 
   if (loading) return <div>Loading...</div>;
@@ -17,7 +17,7 @@ const Layout = () => {
       <header>
         <nav className='container mx-auto flex justify-between py-5'>
           <Link to='/' className='text-2xl'>
-            Kaffy Firebase
+            B
           </Link>
           <ul className='flex gap-x-2 items-center font-medium text-lg'>
             <li>
@@ -29,14 +29,14 @@ const Layout = () => {
                 <li>
                   <button onClick={() => setShowDropdown((d) => !d)}>
                     <img
-                      src={Avatar}
+                      src={!imageUrl ? Avatar : imageUrl}
                       alt={user}
                       className='w-10 h-10 object-cover'
                     />
                   </button>
                 </li>
                 <ul
-                  className={`w-11/12 max-w-[180px] p-3 bg-gray-100 space-y-3 fixed right-12 top-[4.5rem] transition-all duration-500 ${
+                  className={`w-11/12 max-w-[180px] p-3 bg-gray-100 space-y-3 fixed right-12 top-[4.5rem] transition-all duration-500 z-10 ${
                     showDropdown ? "block" : "hidden"
                   }`}
                   key='dropdown-menu'

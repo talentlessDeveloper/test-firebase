@@ -4,13 +4,14 @@ import { auth } from "../firebaseConfig";
 import { useNavigate } from "react-router";
 
 export const useAuthStatus = () => {
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user.displayName);
+        setUser(user);
       }
       setLoading(false);
     });
@@ -24,5 +25,10 @@ export const useAuthStatus = () => {
     navigate("/");
   };
 
-  return { user, loading, handleLogOut };
+  return {
+    user: user.displayName,
+    loading,
+    handleLogOut,
+    imageUrl: user.photoUrl,
+  };
 };

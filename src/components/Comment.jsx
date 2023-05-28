@@ -2,8 +2,11 @@
 
 import CommentForm from "./CommentForm";
 
+import Avatar from "../assets/undraw_male_avatar_g98d.svg";
+
 import { auth } from "../firebaseConfig";
 import { convertDate } from "../utils/timeConvert";
+import { useAuthStatus } from "../hooks/UseAuth";
 
 const Comment = ({
   author,
@@ -15,13 +18,21 @@ const Comment = ({
   setActiveComment,
   addComment,
   updateComment,
+  deleteComment,
   parentId = null,
 }) => {
   const { currentUser } = auth;
 
+  const { imageUrl } = useAuthStatus();
+
   const canReply = Boolean(currentUser.uid);
   const fiveMinutes = 300000;
-  const timePassed = new Date() - new Date(createdAt) > fiveMinutes;
+  const timePassed = new Date() - new Date(createdAt.toDate()) > fiveMinutes;
+  // console.log({
+  //   timePassed,
+  //   createdAt,
+  //   converted: createdAt.toDate(),
+  // });
 
   const canEdit = currentUser.uid === author.id && !timePassed;
   const canDelete = currentUser.uid === author.id && !timePassed;
@@ -42,11 +53,7 @@ const Comment = ({
       <div className='flex-shrink-0'>
         <img
           className='w-10 h-10 rounded-full object-cover'
-          src={
-            author.avatar
-              ? author.avatar
-              : "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60"
-          } // Assuming the author object has an "avatar" field
+          src={imageUrl ? imageUrl : Avatar} // Assuming the author object has an "avatar" field
           alt={author.name} // Assuming the author object has a "name" field
         />
       </div>
@@ -64,7 +71,7 @@ const Comment = ({
             submitLabel='Update'
             hasCancelButton
             initialText={body}
-            handleSubmit={(text) => updateComment(text, replyId)}
+            onSubmit={(text) => updateComment(text, id)}
             handleCancel={() => setActiveComment(null)}
           />
         )}
@@ -82,9 +89,27 @@ const Comment = ({
               Reply
             </button>
           )}
-          {canEdit && <button className='text-sm text-slate-500'>Edit</button>}
+          {canEdit && (
+            <button
+              className='text-sm text-slate-500'
+              onClick={() => {
+                console.log(id);
+                setActiveComment({
+                  id,
+                  type: "editing",
+                });
+              }}
+            >
+              Edit
+            </button>
+          )}
           {canDelete && (
-            <button className='text-sm text-slate-500'>Delete</button>
+            <button
+              className='text-sm text-slate-500'
+              onClick={() => deleteComment(id)}
+            >
+              Delete
+            </button>
           )}
         </div>
         {isReplying && (
@@ -109,6 +134,7 @@ const Comment = ({
                   parentId={id}
                   addComment={addComment}
                   updateComment={updateComment}
+                  deleteComment={deleteComment}
                   activeComment={activeComment}
                   setActiveComment={setActiveComment}
                 />
